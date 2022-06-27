@@ -3,27 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RenderJsonRequest;
-use App\Rules\DepthCheckRule;
-use App\Rules\JsonCheckRule;
-use Illuminate\Http\Request;
+use App\Utils\JsonRenderUtils;
 
 class MainController extends Controller
 {
-    public function setDisplayRecursive(&$json, $currentDepth, $userDepth)
-    {
-        foreach ($json  as &$jsonItem) {
-            $currentDepth == $userDepth ? $jsonItem['display'] = 'none': $jsonItem['display'] = '';
-            self::setDisplayRecursive($jsonItem['children'], $currentDepth + 1, $userDepth);
-        }
-    }
-
     public function renderJsonHtml(RenderJsonRequest $request)
     {
         $validatedRequest = $request->validated();
-        $depth = $validatedRequest['depth'] ?? 1;
         $background = $validatedRequest['background'] ?? "rgb(255,255,255)";
         $json = json_decode($validatedRequest['json'], true);
-        self::setDisplayRecursive($json["content"], 1, $depth);
+        $depth = $validatedRequest['depth'] ?? 1;
+        if($depth == 'max') {
+            $depth = JsonRenderUtils::getMaxDepth($json["content"]);
+        }
+        JsonRenderUtils::setDisplayRecursive($json["content"], 1, $depth);
 
         return view('renderJsonHtml',
             [
