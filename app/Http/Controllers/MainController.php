@@ -23,7 +23,6 @@ class MainController extends Controller
                 'json' => $json["content"],
                 'background' => $background,
                 'isBackgroundUrl' => filter_var($background, FILTER_VALIDATE_URL),
-
             ]
         );
     }
